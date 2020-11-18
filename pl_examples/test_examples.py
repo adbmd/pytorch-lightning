@@ -13,6 +13,7 @@ else:
     DALI_AVAILABLE = True
 
 ARGS_DEFAULT = """
+--default_root_dir %(tmpdir)s \
 --max_epochs 1 \
 --batch_size 32 \
 --limit_train_batches 2 \
@@ -51,9 +52,11 @@ ARGS_DDP_AMP = ARGS_DEFAULT + """
 ])
 @pytest.mark.skipif(torch.cuda.device_count() < 2, reason="test requires multi-GPU machine")
 @pytest.mark.parametrize('cli_args', [ARGS_DP, ARGS_DP_AMP])
-def test_examples_dp(import_cli, cli_args):
+def test_examples_dp(tmpdir, import_cli, cli_args):
 
     module = importlib.import_module(import_cli)
+    # update the temp dir
+    cli_args = cli_args % {'tmpdir': tmpdir}
 
     with mock.patch("argparse._sys.argv", ["any.py"] + cli_args.strip().split()):
         module.cli_main()
@@ -67,9 +70,11 @@ def test_examples_dp(import_cli, cli_args):
 # ])
 # @pytest.mark.skipif(torch.cuda.device_count() < 2, reason="test requires multi-GPU machine")
 # @pytest.mark.parametrize('cli_args', [ARGS_DDP, ARGS_DDP_AMP])
-# def test_examples_ddp(import_cli, cli_args):
+# def test_examples_ddp(tmpdir, import_cli, cli_args):
 #
 #     module = importlib.import_module(import_cli)
+#     # update the temp dir
+#     cli_args = cli_args % {'tmpdir': tmpdir}
 #
 #     with mock.patch("argparse._sys.argv", ["any.py"] + cli_args.strip().split()):
 #         module.cli_main()
@@ -81,9 +86,11 @@ def test_examples_dp(import_cli, cli_args):
     'pl_examples.basic_examples.autoencoder',
 ])
 @pytest.mark.parametrize('cli_args', [ARGS_DEFAULT])
-def test_examples_cpu(import_cli, cli_args):
+def test_examples_cpu(tmpdir, import_cli, cli_args):
 
     module = importlib.import_module(import_cli)
+    # update the temp dir
+    cli_args = cli_args % {'tmpdir': tmpdir}
 
     with mock.patch("argparse._sys.argv", ["any.py"] + cli_args.strip().split()):
         module.cli_main()
@@ -93,8 +100,10 @@ def test_examples_cpu(import_cli, cli_args):
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="test requires GPU machine")
 @pytest.mark.skipif(platform.system() != 'Linux', reason='Only applies to Linux platform.')
 @pytest.mark.parametrize('cli_args', [ARGS_GPU])
-def test_examples_mnist_dali(cli_args):
+def test_examples_mnist_dali(tmpdir, cli_args):
     from pl_examples.basic_examples.mnist_classifier_dali import cli_main
 
+    # update the temp dir
+    cli_args = cli_args % {'tmpdir': tmpdir}
     with mock.patch("argparse._sys.argv", ["any.py"] + cli_args.strip().split()):
         cli_main()
