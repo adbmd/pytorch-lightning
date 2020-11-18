@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from argparse import ArgumentParser
+from pprint import pprint
 
 import torch
 from torch.utils.data import random_split, DataLoader
@@ -106,7 +107,8 @@ def cli_main():
     # ------------
     # testing
     # ------------
-    result = trainer.test(test_dataloaders=test_loader)
+    result = trainer.test(model, test_dataloaders=test_loader)
+    pprint(result)
 
 
 if __name__ == '__main__':
